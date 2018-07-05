@@ -1,0 +1,2 @@
+# Prospector-Solitaire
+Card game
