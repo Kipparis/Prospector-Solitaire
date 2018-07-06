@@ -3,7 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Card : MonoBehaviour {
-    // Это реализуем позже
+    public string suit; // Масть карты (C,D,H или S)
+    public int rank;    // Ранг карты
+    public Color color = Color.black;   // Цвет чтобы окрасить знаки
+    public string colS = "Black";   // Имя цвета
+
+    // Список содержит все декораторы ио
+    public List<GameObject> decoGOs = new List<GameObject>();
+    // Лист содержит все значки
+    public List<GameObject> pipGOs = new List<GameObject>();
+
+    public GameObject back; // ио задней стороны
+    public CardDefinition def;
+
+    public bool faceUp {
+        get { return (!back.activeSelf); }
+        set { back.SetActive(!value); }
+    }
 }
 
 [System.Serializable]
