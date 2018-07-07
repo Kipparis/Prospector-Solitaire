@@ -254,7 +254,7 @@ public class Deck : MonoBehaviour {
             tSR = tGO.GetComponent<SpriteRenderer>();
             tSR.sprite = cardBack;
             tSR.sortingOrder = 2;   // Выше всех
-            card.name = "back";
+            tGO.name = "back";
             card.back = tGO;
 
             // Базово вверх
@@ -273,5 +273,27 @@ public class Deck : MonoBehaviour {
         }
         // Если ничего не найдено возвращаем null
         return (null);
+    }
+
+    // Перемешивает карты в Deck.cards
+    static public void Shuffle(ref List<Card> oCards) {
+        // Создаём временныый списчок чтобы содержать новый порядок
+        List<Card> tCards = new List<Card>();
+        int ndx;    // Содержит индекс перемещаемой карты
+
+        tCards = new List<Card>();
+        // Повторяем пока в исходном списке есть элементы
+        while (oCards.Count > 0) {
+            // Выбираем рандомный индекс
+            ndx = Random.Range(0, oCards.Count);
+            // Добавляем карту в временный список
+            tCards.Add(oCards[ndx]);
+            // Удаляем карту с оригинального списка
+            oCards.RemoveAt(ndx);
+        }
+        // Заменяем оригинальный лист временным
+        oCards = tCards;
+        // Так как oCards переданно как ref значение, оригинал 
+        // который был переданн также изменился
     }
 }
