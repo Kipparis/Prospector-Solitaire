@@ -41,3 +41,21 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Row0
+    uniqueID: 1908250963
+    locked: 0
+  - name: Row1
+    uniqueID: 4065921027
+    locked: 0
+  - name: Row2
+    uniqueID: 1569533895
+    locked: 0
+  - name: Row3
+    uniqueID: 3562041043
+    locked: 0
+  - name: Discard
+    uniqueID: 1598180769
+    locked: 0
+  - name: Draw
+    uniqueID: 1404060753
+    locked: 0

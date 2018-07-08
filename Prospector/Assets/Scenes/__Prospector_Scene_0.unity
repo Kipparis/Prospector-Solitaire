@@ -125,8 +125,8 @@ GameObject:
   - component: {fileID: 827460511}
   - component: {fileID: 827460510}
   - component: {fileID: 827460509}
-  - component: {fileID: 827460515}
   - component: {fileID: 827460514}
+  - component: {fileID: 827460515}
   - component: {fileID: 827460516}
   m_Layer: 0
   m_Name: _MainCamera
@@ -165,7 +165,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0.019607844}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -220,6 +220,14 @@ MonoBehaviour:
   deckXML: {fileID: 4900000, guid: c76312a0fb08948699e1abf935e4a957, type: 3}
   layout: {fileID: 0}
   layoutXML: {fileID: 4900000, guid: 61f3f05951a2f4d98b35bddbc7549908, type: 3}
+  layoutCenter: {x: 0, y: 0, z: 0}
+  xOffset: 3
+  yOffset: -2.5
+  layoutAnchor: {fileID: 0}
+  target: {fileID: 0}
+  tableau: []
+  discardPile: []
+  drawPile: []
 --- !u!114 &827460515
 MonoBehaviour:
   m_ObjectHideFlags: 0
