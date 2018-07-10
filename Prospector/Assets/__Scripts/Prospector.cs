@@ -2,8 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Enum который содержит все возможные события счёта
+public enum ScoreEvent {
+    draw,
+    mine,
+    mineGold,
+    gameWin,
+    gameLoss
+}
+
 public class Prospector : MonoBehaviour {
     static public Prospector S;
+    static public int SCORE_FROM_PREV_ROUND = 0;
+    static public int HIGH_SCORE = 0;
+
+    public Vector3 fsPosMid = new Vector3(0.5f, 0.90f, 0);
+    public Vector3 fsPosRun = new Vector3(0.5f, 0.75f, 0);
+    public Vector3 fsPosMid2 = new Vector3(0.5f, 0.5f, 0);
+    public Vector3 fsPosEnd = new Vector3(1.0f, 0.65f, 0);
 
     public Deck deck;
     public TextAsset deckXML;
@@ -22,11 +38,27 @@ public class Prospector : MonoBehaviour {
 
     public List<CardProspector> drawPile;
 
+    // Поля чтобы отслеживать инфу о счёте
+    public int chain = 0;   // Цепь карт за этот ход
+    public int scoreRun = 0;
+    public int score = 0;
+    public FloatingScore fsRun;
+
     void Awake() {
-        S = this;    
+        S = this;
+        // Проверяем наивысший счёт в PlayerPrefs
+        if (PlayerPrefs.HasKey("ProspectorHighScore")) {
+            HIGH_SCORE = PlayerPrefs.GetInt("ProspectorHighScore");
+        }
+        // Добавляем счёт с предыдущего раунда, который будет > 0, если это победа
+        score += SCORE_FROM_PREV_ROUND;
+        // И обнуляем счёт с пред. раунда
+        SCORE_FROM_PREV_ROUND = 0;
     }
 
     void Start() {
+        Scoreboard.S.score = score;
+
         deck = GetComponent<Deck>();
         deck.InitDeck(deckXML.text);
         Deck.Shuffle(ref deck.cards);
@@ -119,6 +151,7 @@ public class Prospector : MonoBehaviour {
                 MoveToDiscard(target);  // Убираем текущую активную карту в биту
                 MoveToTarget(Draw());   // Берём карту из колоды
                 UpdateDrawPile();   // Заново распологаем колоду
+                ScoreManager(ScoreEvent.draw);
                 break;
             case CardState.tableau:
                 // Кликание на карту на столе будет проверять готовность
@@ -135,6 +168,7 @@ public class Prospector : MonoBehaviour {
                 tableau.Remove(cd); // Удаляем со списка стола
                 MoveToTarget(cd);   // Делаем целью
                 SetTableauFaces();  // Обновляем стол
+                ScoreManager(ScoreEvent.mine);
                 break;
             case CardState.target:
                 break;
@@ -255,11 +289,87 @@ public class Prospector : MonoBehaviour {
     // Вызывается когда игра законченна
     void GameOver(bool won) {
         if (won) {
-            print("Game Over. You won! :)");
+            ScoreManager(ScoreEvent.gameWin);
         } else {
-            print("Game Over. You Lost. :(");
+            ScoreManager(ScoreEvent.gameLoss);
         }
         // Перезагружаем сцену
         Application.LoadLevel("__Prospector_Scene_0");
+    }
+
+    void ScoreManager(ScoreEvent sEvt) {
+        List<Vector3> fsPts;
+        switch (sEvt) {
+            // Должны случится одинаковые вещи когда это Draw, Win, Loss
+            case ScoreEvent.draw:   // Берём карту из колоды
+            case ScoreEvent.gameWin:
+            case ScoreEvent.gameLoss:   // Обнуляем всякие цепи,
+                chain = 0;              // добавляем к целевому результату
+                score += scoreRun;
+                scoreRun = 0;
+                // Добавляем fsRun в _Scoreboard счёт
+                if(fsRun != null) {
+                    // Создаём новые точки для кривой
+                    fsPts = new List<Vector3>();
+                    fsPts.Add(fsPosRun);
+                    fsPts.Add(fsPosMid2);
+                    fsPts.Add(fsPosEnd);
+                    fsRun.reportFinishTo = Scoreboard.S.gameObject;
+                    fsRun.Init(fsPts, 0, 1);
+                    // Также подгоняем размер шрифта
+                    fsRun.fontSizes = new List<float>(new float[] { 28, 36, 4 });
+                    fsRun = null;   // Очищаем fsRun, так он создастся снова
+                }
+                break;
+            case ScoreEvent.mine:
+                chain++;
+                scoreRun += chain;
+                // Создаём FloatingScore для этого счёта
+                FloatingScore fs;
+                // Двигаем от позиции мышки к fsPosRun
+                Vector3 p0 = Input.mousePosition;
+                //p0.x /= Screen.width;
+                //p0.y /= Screen.height;
+                fsPts = new List<Vector3>();
+                fsPts.Add(p0);
+                fsPts.Add(fsPosMid);
+                fsPts.Add(fsPosRun);
+                fs = Scoreboard.S.CreateFloatingScore(chain, fsPts);
+                fs.fontSizes = new List<float>(new float[] { 4, 50, 28 });
+                if (fsRun == null) {
+                    fsRun = fs;
+                    fsRun.reportFinishTo = null;
+                } else {
+                    fs.reportFinishTo = fsRun.gameObject;
+                }
+                break;
+            case ScoreEvent.mineGold:
+                break;
+            default:
+                break;
+        }
+
+        // Второй switch обрабатывает победы и поражения
+        switch (sEvt) {
+            case ScoreEvent.gameWin:
+                // Если это вин, добавляем счёт к следующему раунду
+                // статичные поля не перезагружается с Application.LoadLevel()
+                Prospector.SCORE_FROM_PREV_ROUND = score;
+                print("You won this round! Round score: " + score);
+                break;
+            case ScoreEvent.gameLoss:
+                // Если это проигрыш, сравниваем с наивысшим счётом
+                if(Prospector.HIGH_SCORE <= score) {
+                    print("You got the high score! High score: " + score);
+                    Prospector.HIGH_SCORE = score;
+                    PlayerPrefs.SetInt("ProspectorHighScore", score);
+                } else {
+                    print("Your final score for the game was: " + score);
+                }
+                break;
+            default:
+                print("score: " + score + " scoreRun: " + scoreRun + " chain: " + chain);
+                break;
+        }
     }
 }

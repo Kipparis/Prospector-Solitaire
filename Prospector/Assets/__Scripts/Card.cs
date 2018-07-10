@@ -74,7 +74,7 @@ public class Card : MonoBehaviour {
     }
 
     virtual public void OnMouseUpAsButton() {
-        print(name);    // Когда нашали выводим её имя
+        //print(name);    // Когда нашали выводим её имя
     }
 }
 
