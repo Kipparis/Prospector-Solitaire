@@ -6,9 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: Assets/Scenes/SampleScene.unity
-    guid: 2cda990e2423bbf4892e6590ba056729
-  - enabled: 1
+    path: 
+    guid: 00000000000000000000000000000000
+  - enabled: 0
     path: Assets/Scenes/__Prospector_Scene_0.unity
     guid: e7876eae655084f8d9b344b33478f0fa
+  - enabled: 1
+    path: Assets/Scenes/__Bartok_Scene_0.unity
+    guid: 929325b7525607c4e8f140d7f336d1d5
   m_configObjects: {}
